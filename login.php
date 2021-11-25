@@ -10,8 +10,7 @@
   </head>
   <body>
 	<?php
-	$db_koneksi = new DatabaseHandler();
-	$dbs = $db_koneksi->select_database('*', 'member');
+	$dbHandler = new DatabaseHandler();
 	
 	// print_r($dbs);
 		$email = '';
@@ -29,10 +28,15 @@
 				$benar++;
 			}
 			if ($benar == 2){
-			echo "<script>
-					alert('Registrasi Berhasil');
-					window.location = 'home.php';
-				</script>";
+				$password = md5($password);
+				$checkData = $dbHandler->select_database(
+					'NAMA_MEMBER, PASSWORD_MEMBER', 'member', 
+					['EMAIL_MEMBER' => $email, 'PASSWORD_MEMBER' => $password]);
+										if (!empty($checkData)) {
+					echo 'login berhasil';
+				}else {
+					echo 'username/password salah';
+				}
 		}
 		}
 	?>
@@ -47,7 +51,7 @@
 				if(isset($errors['email'])){ 
 					echo $errors['email'];
 				}
-			?>
+			?>										
 			</div>
 		  </div>
           <div class="row">

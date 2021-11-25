@@ -11,6 +11,7 @@ class DatabaseHandler {
     try {
       $conn = new PDO('mysql:host='.self::ADDRESS_DB.';dbname='.self::NAME_DB.'', self::USERNAME_DB, self::PASSWORD_DB);
       // set the PDO error mode to exception
+      $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $stmt = $conn->prepare($query);
       $stmt->execute();
       
@@ -19,11 +20,12 @@ class DatabaseHandler {
         return $stmt->fetchAll();
         // foreach(new
       } catch(PDOException $e) {
-      echo "Connection failed: " . $e->getMessage();
+      return "Connection failed: " . $e->getMessage();
       }
   }
 
-  public function select_database($kolom, $table, $conditions = [], $order = [], $limit = null){
+  public static function select_database($kolom, $table, $conditions = [], $order = [], $limit = null){
+    // $query = '';
     $field = explode(',', $kolom);
     $fieldtext = '';
     foreach ($field as $value) {
@@ -31,13 +33,12 @@ class DatabaseHandler {
     }
     $field = substr($fieldtext, 0, -1);
     $query = 'SELECT '.$field.' FROM '.$table.' ';
-
     if (!empty($conditions)) {
       $cond = 'WHERE ';
       foreach ($conditions as $key => $value) {
-        $cond .= $key .'='. strtolower("'$value'");
+        $cond .= $key .'='. strtolower("'$value'") . 'AND ';
       }
-      $query .= $cond;
+      $query .= substr($cond, 0, -4);
     }
 
     if (!empty($order)) {
@@ -50,7 +51,6 @@ class DatabaseHandler {
       $query .= " LIMIT $limit";
     }
     // echo $query;
-
     return self::running($query);
   }
   public function insert_database($table, $kolom = []){
@@ -65,10 +65,9 @@ class DatabaseHandler {
       $fieldVal = substr($valText, 0, -1);
       $query = 'INSERT INTO '.$table.' ('.$fieldKey.') VALUES ('.$fieldVal.')'; 
     }
-    echo $query;
+    // return $query;
 
-
-    // return self::running($query);
+    return self::running($query);
   }
 
 

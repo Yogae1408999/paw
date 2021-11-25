@@ -64,10 +64,14 @@
 			// $dbDriver->exec
 			// $conn = databaseConnection();
 			$dbHandler = new DatabaseHandler();
+			$dbHandlerB = new DatabaseHandler();
 			$idmember = $dbHandler->select_database('ID_MEMBER', 'member', ['NAMA_MEMBER' => $nama], ['NAMA_MEMBER' => 'DESC'], 1);
+			// $q_idmember = $dbHandler->select_database('ID_MEMBER', 'member', ['NAMA_MEMBER' => $nama], ['NAMA_MEMBER' => 'DESC'], 1);
 			$idmember = @$idmember[0]['ID_MEMBER'];
-			$idmemberCheck = (!empty($idmember)) ? $idmember : $dbHandler->select_database('member', 'ID_MEMBER', [], ['ID_MEMBER' => 'DESC'], 1);
+			// $idmember = $dbHandler->running($q_idmember);
+			$lastIdMember = (!empty($idmember)) ? $idmember : $dbHandlerB->select_database('ID_MEMBER', 'member', [], ['ID_MEMBER' => 'DESC'], 1);
 			// $coba = select_database($conn, );
+			// var_dump($dbHandler->running($lastIdMember));
 			if ($idmember) {
 				echo '
 				<script>
@@ -75,11 +79,11 @@
 				</script>
 				';
 			}else {
-				$newId = (empty($idmemberCheck[0]['ID_MEMBER'])) ? '1001' : intval($idmemberCheck[0]['ID_MEMBER'])+1;
+				$newId = (empty($lastIdMember[0]['ID_MEMBER'])) ? '1001' : intval($lastIdMember[0]['ID_MEMBER'])+1;
 				$fotoMemberTemp = "";
 				$fotoMember = (empty($fotoMember)) ? null : 'isi';
 				$password = md5($password);
-			$dbHandler->insert_database('member', [
+			$statusinsert = $dbHandler->insert_database('member', [
 				'ID_MEMBER' => $newId,
 				'NIM_MEMBER' => $nim,
 				'NAMA_MEMBER' => "'$nama'",
@@ -89,7 +93,11 @@
 				'NO_TELEPON_MEMBER' => "'$noWa'",
 				'JENIS_KELAMIN_MEMBER' => "'$jenisKelamin'",
 			]);
-			// header('location:http://localhost/PAW/sosmed/PAW/login.php');
+			if (empty($statusinsert)) {
+				header('Location: login.php');
+			}else{
+				echo ($statusinsert);
+			}
 		}
 		}
 
